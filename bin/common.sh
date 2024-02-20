@@ -12,6 +12,12 @@ else
   echo "Using '$CONFIG' for configuration files"
 fi
 
+if [ -d "$CONFIG" ]; then
+else
+    echo "$CONFIG" is not a directory according to shell test.
+    exit -1
+fi
+
 missing_config=no
 function load_config_var() {
   local -r var_name=$1; shift
