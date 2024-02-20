@@ -5,16 +5,10 @@ if [ -f "$env_file" ]; then
   source "$env_file"
 fi
 
-if [ "x$CONFIG" = "x" ]; then
-  echo "CONFIG should be set to the directory where the secret containing the configuration is."
-  exit -1
-else
-  echo "Using '$CONFIG' for configuration files"
-fi
-
 if [ -d "$CONFIG" ]; then
+  echo "Using '$CONFIG' for configuration files"
 else
-    echo "$CONFIG" is not a directory according to shell test.
+    echo "CONFIG should be set to the directory where the secret containing the configuration is."
     exit -1
 fi
 
