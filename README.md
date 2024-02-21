@@ -19,6 +19,8 @@ AWS Related keys:
 * (optional) `s3_endpoint` - S3 Endpoint to contact.  Defaults to AWS default. 
 * `s3_bucket` - S3 Bucket to store or retrieve the artifact
 * `s3_target_object` - S3 key within the bucket to store or retrieve
+* (optional) `s3_object_dated` - Sends the `s3_target_object` through `date` as a formatted string, storing the object
+as a result.
 
 Postgres related keys:
 * `pg_host` - Host of the Postgres database
@@ -26,3 +28,7 @@ Postgres related keys:
 * `pg_user` - User to connect as
 * `pg_password` - Password to authenticate the user as
 * `pg_database` - Target database to perform the operation against.
+
+# Change Log
+`v0.2.0` - Adds `s3_object_dated` so running as a `CronJob` in k8s is easier to keep a number of backups.
+`v0.1.0` - Initial working release
