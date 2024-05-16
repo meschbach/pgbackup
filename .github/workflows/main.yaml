@@ -1,0 +1,62 @@
+name: Continuous Delivery
+
+on: [push]
+
+jobs:
+  publish_images:
+    runs-on: ubuntu-latest
+    if: github.triggering_actor == 'meschbach' &&  (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    timeout-minutes: 10
+    # needed for version bumping
+    permissions:
+          contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@v1 # Don't use @master or @v1 unless you're happy to test the latest version
+        id: version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          WITH_V: true
+          DEFAULT_BUMP: patch
+      - name: "Setup Environment"
+        run: |
+          echo "BRANCH=${{ steps.version.outputs.tag }}" |sed 's/v//g' >> $GITHUB_ENV
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push postgres-with-aws
+        uses: docker/build-push-action@v5
+        with:
+          platforms: "linux/amd64,linux/arm64"
+          file: containers/postgres-with-aws/Dockerfile
+          push: true
+          tags: |
+            meschbach/postgres-with-aws:latest
+            meschbach/postgres-with-aws:${{ env.BRANCH }}
+            meschbach/postgres-with-aws:${{ github.sha }}
+            meschbach/postgres-with-aws:${{ steps.version.outputs.tag }}
+      - name: Build and push pgbackup
+        uses: docker/build-push-action@v5
+        with:
+          platforms: "linux/amd64,linux/arm64"
+          file: containers/pgbackup/Dockerfile
+          push: true
+          tags: |
+            meschbach/pgbackup:latest
+            meschbach/pgbackup:${{ env.BRANCH }}
+            meschbach/pgbackup:${{ github.sha }}
+            meschbach/pgbackup:${{ steps.version.outputs.tag }}
+      - name: Github Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
