@@ -5,7 +5,7 @@ on: [push]
 jobs:
   publish_images:
     runs-on: ubuntu-latest
-    if: github.triggering_actor == 'meschbach' # &&  (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    if: github.triggering_actor == 'meschbach' &&  (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     timeout-minutes: 10
     # needed for version bumping
     permissions:
