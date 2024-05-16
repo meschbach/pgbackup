@@ -33,7 +33,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push migrator
+      - name: Build and push postgres-with-aws
         uses: docker/build-push-action@v5
         with:
           platforms: "linux/amd64,linux/arm64"
@@ -44,7 +44,7 @@ jobs:
             meschbach/postgres-with-aws:${{ env.BRANCH }}
             meschbach/postgres-with-aws:${{ github.sha }}
             meschbach/postgres-with-aws:${{ steps.version.outputs.tag }}
-      - name: Build and push service
+      - name: Build and push pgbackup
         uses: docker/build-push-action@v5
         with:
           platforms: "linux/amd64,linux/arm64"
